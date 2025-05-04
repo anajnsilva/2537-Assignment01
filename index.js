@@ -1,11 +1,11 @@
-// require('./utils.js');
+require('./utils.js');
 require('dotenv').config();
 const express = require("express");
 const session = require("express-session");
-// const MongoStore = require("connect-mongo");
+const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
-// const Joi = require("joi");
+const Joi = require("joi");
 
 
 const saltRounds = 12;
@@ -15,16 +15,16 @@ const app = express();
 
 const expireTime = 1 * 60 * 60 * 1000;
 
-// const mongoHost = process.env.MONGODB_HOST;
-// const mongoUser = process.env.MONGODB_USER;
-// const mongoPWD = process.env.MONGODB_PASSWORD;
-// const mongoDataBase = process.env.MONGODB_DATABASE;
-// const mongoSecret = process.env.MONGODB_SESSION_SECRET;
-// const nodeSecret = process.env.NODE_SESSION_SECRET;
+const mongoHost = process.env.MONGODB_HOST;
+const mongoUser = process.env.MONGODB_USER;
+const mongoPWD = process.env.MONGODB_PASSWORD;
+const mongoDataBase = process.env.MONGODB_DATABASE;
+const mongoSecret = process.env.MONGODB_SESSION_SECRET;
+const nodeSecret = process.env.NODE_SESSION_SECRET;
 
-// var database = require('./dbConenction.js').database;
+var database = require('./dbConenction.js').database;
 
-// const userCollection = database.db(mongoDataBase).collection('users');
+const userCollection = database.db(mongoDataBase).collection('users');
 
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
@@ -32,21 +32,21 @@ app.use(express.json());
 
 app.use("/js", express.static("./js"));
 
-// var mongoStore = MongoStore.create({
-//     mongoUrl: `mongodb+srv://${mongoUser}:${mongoPWD}@${mongoHost}/${mongoDataBase}`,
-//     crypto: {
-//         secret: mongoSecret
-//     }
-// });
+var mongoStore = MongoStore.create({
+    mongoUrl: `mongodb+srv://${mongoUser}:${mongoPWD}@${mongoHost}/${mongoDataBase}`,
+    crypto: {
+        secret: mongoSecret
+    }
+});
 
-// app.use(session(
-//     {
-//         secret: nodeSecret,
-//         store: mongoStore,
-//         resave: false,
-//         saveUninitialized: true
-//     })
-// );
+app.use(session(
+    {
+        secret: nodeSecret,
+        store: mongoStore,
+        resave: false,
+        saveUninitialized: true
+    })
+);
 
 
 app.get('/', (req, res) => {
