@@ -102,8 +102,7 @@ app.post('/submitUser', async (req, res) => {
     req.session.email = email;
     req.session.cookie.maxAge = expireTime;
     
-    let doc = fs.readFileSync('./html/members.html', 'utf8');
-    res.send(doc);
+    res.redirect("/members");
 });
 
 app.get('/login', (req, res) => {
