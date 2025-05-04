@@ -28,8 +28,6 @@ const userCollection = database.db(mongoDataBase).collection('users');
 app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
-
-app.use("/js", express.static("./js"));
 app.use("/public", express.static("./public"));
 
 var mongoStore = MongoStore.create({
