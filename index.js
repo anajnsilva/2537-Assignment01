@@ -10,7 +10,7 @@ const fs = require("fs");
 
 const saltRounds = 12;
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3000;
 const app = express();
 
 const expireTime = 1 * 60 * 60 * 1000;
