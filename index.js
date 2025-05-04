@@ -30,6 +30,7 @@ app.use(express.json());
 
 
 app.use("/js", express.static("./js"));
+app.use("/public", express.static("./public"));
 
 var mongoStore = MongoStore.create({
     mongoUrl: `mongodb+srv://${mongoUser}:${mongoPWD}@${mongoHost}/${mongoDataBase}`,
@@ -152,8 +153,11 @@ app.get('/members', (req, res) => {
         res.redirect('/');
         return;
     } else {
+        let cats = ["/public/cat1.jpeg", "/public/cat2.jpeg", "/public/cat3.jpeg"]
         let doc = fs.readFileSync('./html/members.html', 'utf8');
         doc = doc.replace("##username##", req.session.name);
+        let randomCat = Math.floor(Math.random() * (3));
+        doc = doc.replace("##img##", cats[randomCat]);
         res.send(doc);
     }
 });
