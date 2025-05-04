@@ -49,12 +49,12 @@ app.use(session(
 
 
 app.get('/', (req, res) => {
-    console.log("/ route")
     if (!req.session.loggedIn) {
         let doc = fs.readFileSync('./html/index.html', 'utf8');
         res.send(doc);
     } else {
         let doc = fs.readFileSync('./html/home.html', 'utf8');
+        doc = doc.replace("##username##", req.session.name);
         res.send(doc);
     }
 });
@@ -144,12 +144,13 @@ app.get('/members', (req, res) => {
         return;
     } else {
         let doc = fs.readFileSync('./html/members.html', 'utf8');
+        doc = doc.replace("##username##", req.session.name);
         res.send(doc);
     }
 });
 
 
-app.get("/logout", function (req, res) {
+app.post("/logout", function (req, res) {
     
     if (req.session) {
         req.session.destroy(function (error) {
