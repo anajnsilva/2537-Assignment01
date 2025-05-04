@@ -79,7 +79,18 @@ app.post('/submitUser', async (req, res) => {
 
     const validationResult = schema.validate({name, email, password});
     if (validationResult.error != null) {
-        console.log(validationResult.error);
+        if (name === "") {
+            res.send("<p>Name is required.</p></br><a href='/signup'>Try again</a>");
+            return;
+        }
+        if (email === "") {
+            res.send("<p>Email is required.</p></br><a href='/signup'>Try again</a>");
+            return;
+        }
+        if (password === "") {
+            res.send("<p>Password is required.</p></br><a href='/signup'>Try again</a>");
+            return;
+        }
         res.redirect('/signup');
         return;
     }
@@ -87,7 +98,6 @@ app.post('/submitUser', async (req, res) => {
     let hashedPassword = await bcrypt.hashSync(password, saltRounds);
 
     await userCollection.insertOne({name: name, email: email, password: hashedPassword});
-    console.log("Inserted user");
     req.session.loggedIn = true;
     req.session.name = name;
     req.session.email = email;
@@ -109,20 +119,20 @@ app.post('/loggingIn', async (req, res) => {
     const schema = Joi.string().required();
     const validationResult = schema.validate(email);
     if(validationResult.error != null) {
-        console.log(validationResult.error);
+        if (email === "") {
+            res.send("<p>Email is required.</p></br><a href='/login'>Try again</a>");
+            return;
+        }
         res.redirect('/login');
         return;
     }
 
     const result = await userCollection.find({email: email}).project({email: 1, password: 1, name: 1, __id: 1}).toArray();
-    console.log(result);
     if (result.length != 1) {
-        console.log("User not found");
         res.send("<p>Invalid email</p></br><a href='/login'>Try again</a>");
         return;
     }
     if (await bcrypt.compare(password, result[0].password)) {
-        console.log("Correct password");
         req.session.loggedIn = true;
         req.session.name = result[0].name;
         req.session.email = email;
@@ -131,7 +141,6 @@ app.post('/loggingIn', async (req, res) => {
         res.redirect('/members');
         return;
     } else {
-        console.log("Incorrect password");
         res.send("<p>Incorrect password</p></br><a href='/login'>Try again</a>");
         return;
     }
