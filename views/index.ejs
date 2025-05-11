@@ -1,0 +1,35 @@
+<%- include('partials/header') %>
+
+    <% if (loggedIn) { %>
+
+        <div class="p-5 text-center bg-body-tertiary">
+            <div class="container py-5 jumbotron">
+                <h1 class="text-body-emphasis">Hello <%= name %>
+                </h1>
+                <div class="col text-end buttons">
+                    <button type="button" id="members" onclick="location.href='/members'"
+                        class="btn btn-outline-primary me-2">Member's Page</button>
+                    <form action="/logout" method="post">
+                        <button id="logOut" type="submit" class="btn btn-outline-primary">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <% } else { %>
+            <div class="p-5 text-center bg-body-tertiary">
+                <div class="container py-5 jumbotron">
+                    <h1 class="text-body-emphasis">Welcome!</h1>
+                    <div class="col text-end buttons">
+                        <button type="button" id="logIn" onclick="location.href='./login'"
+                            class="btn btn-outline-primary me-2">Login</button>
+                        <button type="button" id="signUp" onclick="location.href='./signup'"
+                            class="btn btn-outline-primary me-2">Sign up</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <% } %>
+
+                <%- include('partials/footer') %>

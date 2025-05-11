@@ -25,10 +25,11 @@ var database = require('./dbConenction.js').database;
 
 const userCollection = database.db(mongoDataBase).collection('users');
 
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use("/public", express.static("./public"));
+app.use("/css", express.static(__dirname + "/css"));
 
 var mongoStore = MongoStore.create({
     mongoUrl: `mongodb+srv://${mongoUser}:${mongoPWD}@${mongoHost}/${mongoDataBase}`,
@@ -46,21 +47,18 @@ app.use(session(
     })
 );
 
+app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
-    if (!req.session.loggedIn) {
-        let doc = fs.readFileSync('./html/index.html', 'utf8');
-        res.send(doc);
-    } else {
-        let doc = fs.readFileSync('./html/home.html', 'utf8');
-        doc = doc.replace("##username##", req.session.name);
-        res.send(doc);
-    }
+    let css = `<link rel="stylesheet" href="/css/index.css">`;
+    let loggedIn = req.session.loggedIn;
+    let name = req.session.name;
+    res.render("index", { loggedIn: loggedIn, name: name, css: css });
 });
 
 app.get('/signup', (req, res) => {
-    let doc = fs.readFileSync('./html/signup.html', 'utf8');
-    res.send(doc);
+    let css = `<link rel="stylesheet" href="/css/login.css">`;
+    res.render("signup", { css: css });
 });
 
 app.post('/submitUser', async (req, res) => {
@@ -76,7 +74,7 @@ app.post('/submitUser', async (req, res) => {
         }
     );
 
-    const validationResult = schema.validate({name, email, password});
+    const validationResult = schema.validate({ name, email, password });
     if (validationResult.error != null) {
         if (name === "") {
             res.send("<p>Name is required.</p></br><a href='/signup'>Try again</a>");
@@ -96,18 +94,18 @@ app.post('/submitUser', async (req, res) => {
 
     let hashedPassword = await bcrypt.hashSync(password, saltRounds);
 
-    await userCollection.insertOne({name: name, email: email, password: hashedPassword});
+    await userCollection.insertOne({ name: name, email: email, password: hashedPassword });
     req.session.loggedIn = true;
     req.session.name = name;
     req.session.email = email;
     req.session.cookie.maxAge = expireTime;
-    
-    res.redirect("/members");
+
+    res.render("/members", { name: name });
 });
 
 app.get('/login', (req, res) => {
-    let doc = fs.readFileSync('./html/login.html', 'utf8');
-    res.send(doc);
+    let css = `<link rel="stylesheet" href="/css/login.css">`;
+    res.render("login", { css: css });
 });
 
 app.post('/loggingIn', async (req, res) => {
@@ -116,7 +114,7 @@ app.post('/loggingIn', async (req, res) => {
 
     const schema = Joi.string().required();
     const validationResult = schema.validate(email);
-    if(validationResult.error != null) {
+    if (validationResult.error != null) {
         if (email === "") {
             res.send("<p>Email is required.</p></br><a href='/login'>Try again</a>");
             return;
@@ -125,7 +123,7 @@ app.post('/loggingIn', async (req, res) => {
         return;
     }
 
-    const result = await userCollection.find({email: email}).project({email: 1, password: 1, name: 1, __id: 1}).toArray();
+    const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, name: 1, __id: 1 }).toArray();
     if (result.length != 1) {
         res.send("<p>Invalid email</p></br><a href='/login'>Try again</a>");
         return;
@@ -135,8 +133,9 @@ app.post('/loggingIn', async (req, res) => {
         req.session.name = result[0].name;
         req.session.email = email;
         req.session.cookie.maxAge = expireTime;
+        let css = `<link rel="stylesheet" href="/css/members.css">`;
 
-        res.redirect('/members');
+        res.render('members', {css: css, name: req.session.name});
         return;
     } else {
         res.send("<p>Incorrect password</p></br><a href='/login'>Try again</a>");
@@ -150,18 +149,15 @@ app.get('/members', (req, res) => {
         res.redirect('/');
         return;
     } else {
-        let cats = ["/public/cat1.jpeg", "/public/cat2.jpeg", "/public/cat3.jpeg"]
-        let doc = fs.readFileSync('./html/members.html', 'utf8');
-        doc = doc.replace("##username##", req.session.name);
-        let randomCat = Math.floor(Math.random() * (3));
-        doc = doc.replace("##img##", cats[randomCat]);
-        res.send(doc);
+        let css = `<link rel="stylesheet" href="/css/members.css">`;
+        let name = req.session.name;
+        res.render("members", { name: name, css: css });
     }
 });
 
 
 app.post("/logout", function (req, res) {
-    
+
     if (req.session) {
         req.session.destroy(function (error) {
             if (error) {
@@ -174,9 +170,9 @@ app.post("/logout", function (req, res) {
     }
 });
 
-app.get("*dummy", (req,res) => {
+app.get("*dummy", (req, res) => {
     res.status(404);
-    res.send("Page not found - 404");
+    res.render("404");
 });
 
 app.listen(port, function () {
