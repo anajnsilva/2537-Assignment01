@@ -1,0 +1,12 @@
+<li>
+    <div style="display: flex; align-items: center;">
+    <span style="font-size: larger; margin-right: 0.3em;"><%= user.name %> (<%= user.user_type %>) </span>
+    <form action="/promoteUser/<%= user.name %>" method="post">
+    <button type="submit" class="btn btn-outline-success" style="margin-right: 0.5em;">Promote to Admin</button>
+    </form>
+    <form action="/demoteUser/<%= user.name %>" method="post">
+    <button type="submit" class="btn btn-outline-danger">Demote to User</button>
+    </form>
+    </div>
+</li>
+</br>

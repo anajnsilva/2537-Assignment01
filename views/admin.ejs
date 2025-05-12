@@ -1,0 +1,8 @@
+<%- include('partials/header') %>
+<h1 style="margin: 0.5em;">Users:</h1>
+<ul style="list-style-type: none;">
+    <% for(let i=0; i < users.length; i++) { %>
+        <%- include ('partials/user', {user: users[i]}) %>
+    <% } %>
+</ul>
+<%- include('partials/footer') %>
